@@ -1,92 +1,82 @@
+# Copyright 2018 Giorgos Kordopatis-Zilos. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+"""
+Implementation of the evaluation process based on CC_WEB_VIDEO dataset.
+"""
+
 import argparse
 import numpy as np
 import pickle as pk
-import matplotlib.pylab as plt
 
 from model import DNN
 from scipy.spatial.distance import cdist
-from sklearn.metrics import precision_recall_curve
+from utils import plot_pr_curve, evaluate
 
-def plot_pr_curve(pr_curve, title):
-    plt.figure(figsize=(16, 9))
-    plt.plot(np.arange(0.0, 1.05, 0.05),
-             pr_curve, color='b', marker='o', linewidth=3, markersize=10)
-    plt.grid(True, linestyle='dotted')
-    plt.xlabel('Recall', color='k', fontsize=27)
-    plt.ylabel('Precision', color='k', fontsize=27)
-    plt.yticks(color='k', fontsize=20)
-    plt.xticks(color='k', fontsize=20)
-    plt.ylim([0.0, 1.05])
-    plt.xlim([0.0, 1.0])
-    plt.title(title, color='k', fontsize=27)
-    plt.tight_layout()
-    plt.show()
-
-def evaluate(ground_truth, similarities, positive_labels='ESLMV', all=False):
-    AP = 0.0
-    pr, mAP = [], 0.0
-    for query_set, labels in ground_truth.iteritems():
-        i = 0.0
-        ri = 0
-        s = 0.0
-        y_target, y_score = [], []
-        for video, sim in similarities[query_set]:
-            if all or video in labels:
-                y_score += [sim]
-                y_target += [0.0]
-                ri += 1
-                if video in labels and labels[video] in positive_labels:
-                    i += 1.0
-                    s += i / ri
-                    y_target[-1] = 1.0
-
-        AP += s / np.sum([1.0 for label in labels.values() if label in positive_labels])
-
-        precision, recall, thresholds = precision_recall_curve(y_target, y_score)
-        p = []
-        for i in xrange(20, 0, -1):
-            idx = np.where((recall >= i*0.05))[0]
-            p += [np.max(precision[idx])]
-        pr += [p + [1.0]]
-
-    return AP / len(ground_truth), np.mean(pr, axis=0)[::-1]
 
 def calculate_similarities(queries, features):
+    """
+      Function that generates video triplets from CC_WEB_VIDEO.
+
+      Args:
+        queries: indexes of the query videos
+        features: global features of the videos in CC_WEB_VIDEO
+      Returns:
+        similarities: the similarities of each query with the videos in the dataset
+    """
     similarities = dict()
+    dist = np.nan_to_num(cdist(features[queries], features, metric='euclidean'))
     for i, v in enumerate(queries):
-        dist = cdist([features[v]], features, metric='euclidean')[0]
-        sim = np.round(1 - dist / np.max(dist[~np.isnan(dist)]), decimals=6)
+        sim = np.round(1 - dist[i] / dist.max(), decimals=6)
         similarities[i + 1] = [(s, sim[s]) for s in sim.argsort()[::-1] if not np.isnan(sim[s])]
     return similarities
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-es', '--evaluation_set', type=str, required=True)
-    parser.add_argument('-m', '--model_path', type=str, required=True)
-    parser.add_argument('-pl', '--positive_labels', default='ESLMV')
-    parser.add_argument('-l', '--layers', default='2000,1000,500')
+    parser.add_argument('-es', '--evaluation_set', type=str, required=True,
+                        help='Path to the .npy file that contains the global '
+                             'video vectors of the CC_WEB_VIDEO dataset')
+    parser.add_argument('-m', '--model_path', type=str, required=True,
+                        help='Path to load the trained DML model')
+    parser.add_argument('-pl', '--positive_labels', default='ESLMV',
+                        help='Labels in CC_WEB_VIDEO datasets that '
+                             'considered posetive. default=\'ESLMV\'')
     args = vars(parser.parse_args())
 
     print 'loading data...'
     cc_dataset = pk.load(open('datasets/cc_web_video.pickle', 'rb'))
     cc_features = np.load(args['evaluation_set'])
 
-    layers = [int(l) for l in args['layers'].split(',')]
-    model = DNN(cc_features.shape[1], layers,
+    model = DNN(cc_features.shape[1], None,
                 args['model_path'],
                 load_model=True,
                 trainable=False)
-
     cc_embeddings = model.embeddings(cc_features)
+    print 'Evaluation set file: ', args['evaluation_set']
+    print 'Path to DML model: ', args['model_path']
+    print 'Positive labels: ', args['positive_labels']
 
+    print '\nEvaluation Results'
+    print '=================='
     similarities = calculate_similarities(cc_dataset['queries'], cc_embeddings)
     mAP, pr_curve = evaluate(cc_dataset['ground_truth'], similarities,
-                             positive_labels=args['positive_labels'], all=False)
+                             positive_labels=args['positive_labels'], all_videos=False)
     print 'CC_WEB_VIDEO mAP: ', mAP
     plot_pr_curve(pr_curve, 'CC_WEB_VIDEO')
 
     mAP, pr_curve = evaluate(cc_dataset['ground_truth'], similarities,
-                             positive_labels=args['positive_labels'], all=True)
+                             positive_labels=args['positive_labels'], all_videos=True)
     print 'CC_WEB_VIDEO* mAP: ', mAP
     plot_pr_curve(pr_curve, 'CC_WEB_VIDEO*')
