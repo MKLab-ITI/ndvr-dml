@@ -46,7 +46,7 @@ def dataset_global_features(dataset, feature_files, cores):
 
     print '\nGlobal Vectors Extraction'
     print '========================='
-    progress_bar = trange(len(dataset['index']))
+    progress_bar = tqdm(len(dataset['index']), unit='video')
 
     # extract features in parallel
     pool = Pool(cores)

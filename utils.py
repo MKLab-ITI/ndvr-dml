@@ -44,7 +44,7 @@ def load_feature_files(feature_files):
         file is not in the right format
     """
     try:
-        return {l.split('\t')[0]: l.split('\t')[1] for l in open(feature_files, 'rb').readlines()}
+        return {l.split('\t')[0]: l.split('\t')[1].strip() for l in open(feature_files, 'rb').readlines()}
     except:
         raise Exception('''--feature_files provided is in wrong format. Each line of the 
         file have to contain the video id (name of the video file) 
