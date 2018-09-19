@@ -82,7 +82,7 @@ if __name__ == '__main__':
     parser.add_argument('-ij', '--injection', type=int, default=10000,
                         help='Number of injected triplets generated from the '
                              'evaluation set. It is only applied when the '
-                             'evaluation_set is provided. Default: 10000')
+                             'evaluation_set is provided. Default: 10000, Max:10000')
     parser.add_argument('-l', '--layers', default='2000,1000,500',
                         help='Number of neuron for each layer of the DML network, '
                              'separated by a comma \',\'. Default: 2000,1000,500')
@@ -108,6 +108,7 @@ if __name__ == '__main__':
     triplets = np.load(args['triplets'])
 
     if args.get('evaluation_set'):
+        args['injection'] = np.min([args['injection'], 10000])
         print 'Evaluation set file: ', args['evaluation_set']
         print 'Evaluation triplet file: ', args['evaluation_triplets']
         print 'Injected triplet: ', args['injection']

@@ -44,9 +44,18 @@ def load_feature_files(feature_files):
         file is not in the right format
     """
     try:
-        return {l[0]: l[1] for l in np.loadtxt(feature_files, delimiter='\t', dtype=str)}
+        return {l.split('\t')[0]: l.split('\t')[1] for l in open(feature_files, 'rb').readlines()}
     except:
-        raise Exception('--feature_files provided is in wrong format. See --help for more information')
+        raise Exception('''--feature_files provided is in wrong format. Each line of the 
+        file have to contain the video id (name of the video file) 
+        and the full path to the corresponding .npy file, separated
+        by a tab character (\\t). Example:
+                        
+            23254771545e5d278548ba02d25d32add952b2a4	features/23254771545e5d278548ba02d25d32add952b2a4.npy
+            468410600142c136d707b4cbc3ff0703c112575d	features/468410600142c136d707b4cbc3ff0703c112575d.npy
+            67f1feff7f624cf0b9ac2ebaf49f547a922b4971	features/67f1feff7f624cf0b9ac2ebaf49f547a922b4971.npy
+            7deff9e47e47c98bb341c4355dfff9a82bfba221	features/7deff9e47e47c98bb341c4355dfff9a82bfba221.npy
+                                                      ...''')
 
 
 def normalize(X):
