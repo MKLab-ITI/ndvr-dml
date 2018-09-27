@@ -35,11 +35,6 @@ def train_dml_network(model, train_set, triplets, epochs, batch_sz):
         batch_sz: the batch size
     """
 
-    # split triplets to create a validation set
-    val_triplets = triplets[:10000]
-    triplets = triplets[10000:]
-    val_set = train_set[val_triplets.reshape(-1)]
-
     print '\nStart of DML Training'
     print '====================='
     n_batch = triplets.shape[0] / batch_sz + 1
@@ -52,14 +47,12 @@ def train_dml_network(model, train_set, triplets, epochs, batch_sz):
             triplet_batch = triplets[j * batch_sz: (j + 1) * batch_sz]
             train_batch = train_set[triplet_batch.reshape(-1)]
 
-            model.train(train_batch)
+            _, cost, error = model.train(train_batch)
 
-            if (j+1) % 25 == 0:
-                loss, cost, error = model.test(val_set)
-                pbar.set_postfix(loss=loss, error='{0:.2f}%'.format(error))
+            pbar.set_postfix(cost=cost, error='{0:.2f}%'.format(error))
+
             if j % int(0.25 * n_batch + 1) == 0 and j > 0:
                 model.save()
-
         model.save()
 
 

@@ -30,7 +30,7 @@ class DNN(object):
                  trainable=True,
                  learning_rate=1e-5,
                  weight_decay=5e-3,
-                 gamma=0.1):
+                 gamma=1.0):
         """
           Class initializer.
 
@@ -69,10 +69,10 @@ class DNN(object):
                     tf.summary.scalar('cost', cost)
 
                 train = tf.train.AdamOptimizer(learning_rate).minimize(cost)
-                self.train_op = [train, loss, cost, error]
+                self.train_op = [train, cost, error]
 
             summary = tf.summary.merge_all()
-            self.test_op = [summary, loss, cost, error]
+            self.test_op = [summary, cost, error]
 
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
@@ -109,8 +109,9 @@ class DNN(object):
         """
           Function that loads the weight of DNN layers from the saved model.
         """
-        previous_sizes = [size[1] for _, size in
-                          tf.contrib.framework.list_variables(self.path) if len(size) == 2]
+        previous_sizes = [size[1] for name, size in
+                          tf.contrib.framework.list_variables(self.path)
+                          if len(size) == 2 and 'Adam' not in name]
         net = self.build(previous_sizes)
 
         previous_variables = [var_name for var_name, _
@@ -134,7 +135,7 @@ class DNN(object):
         with tf.name_scope('euclidean_distance'):
             return tf.reduce_sum(tf.square(tf.subtract(x, y)), 1)
 
-    def triplet_loss(self, anchor, positive, negative, gamma=0.1):
+    def triplet_loss(self, anchor, positive, negative, gamma):
         """
           Triplet loss calculation.
 
@@ -193,10 +194,10 @@ class DNN(object):
             cost: total cost
             error: number of triplets with positive loss
         """
-        summary, loss, cost, error = self.sess.run(self.test_op, feed_dict={self.input: X})
+        summary, cost, error = self.sess.run(self.test_op, feed_dict={self.input: X})
         self.summary_writer.add_summary(summary, self.global_step)
         self.global_step += 1
-        return loss, cost, error
+        return cost, error
 
     def embeddings(self, X):
         """
