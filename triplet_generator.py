@@ -46,7 +46,7 @@ def dataset_global_features(dataset, feature_files, cores):
 
     print '\nGlobal Vectors Extraction'
     print '========================='
-    progress_bar = tqdm(len(dataset['index']), unit='video')
+    progress_bar = tqdm(xrange(len(dataset['index'])), unit='video')
 
     # extract features in parallel
     pool = Pool(cores)
@@ -70,6 +70,8 @@ def dataset_global_features(dataset, feature_files, cores):
     for i, f in enumerate(future):
         if f.get().size > 0:
             global_features[i] = f.get()
+
+    progress_bar.close()
     pool.terminate()
 
     return global_features
@@ -125,6 +127,8 @@ def triplet_generator_cc(dataset, cc_web_features):
     print '\nCC_WEB_VIDEO Triplet Generation'
     print '==============================='
     triplets = []
+
+    # generate triplets from each query set
     for i, ground_truth in dataset['ground_truth'].iteritems():
         pos = [k for k, v in ground_truth.iteritems() if v in ['E', 'L', 'V', 'S', 'M']]
         neg = [k for k, v in ground_truth.iteritems() if v in ['X', '-1']]
