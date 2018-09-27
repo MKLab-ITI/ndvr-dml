@@ -43,6 +43,9 @@ two files for each dataset:
 
 To execute the triplet generation process, do as follows:
 
+* The code does not extract features from videos. Instead, the .npy files of the already extracted features have to be provided.
+You may use the tool in [here](https://github.com/MKLab-ITI/intermediate-cnn-features) to do so.
+
 * Create a file that contains the video id and the path of the feature file for each video in the processing dataset.
 Each line of the file have to contain the video id (basename of the video file) 
 and the full path to the corresponding .npy file of its features, separated by a tab character (\\t). Example:
