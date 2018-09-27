@@ -61,7 +61,7 @@ the name of the processed dataset, and the output directory.
 python triplet_generator.py --dataset vcdb --feature_files vcdb_feature_files.txt --output_dir output_data/
 ```
 
-* The global video features extracted based on the [Intermediate CNN Ffeatures](https://github.com/MKLab-ITI/intermediate-cnn-features),
+* The global video features extracted based on the [Intermediate CNN Features](https://github.com/MKLab-ITI/intermediate-cnn-features),
  and their generated triplets for both datasets can be found [here](https://drive.google.com/drive/folders/1swgdUsYwOy9pdoJzKfthAq74CqBEQDmA?usp=sharing).
 
 ### DML training
