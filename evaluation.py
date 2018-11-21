@@ -59,7 +59,7 @@ if __name__ == '__main__':
     cc_dataset = pk.load(open('datasets/cc_web_video.pickle', 'rb'))
     cc_features = np.load(args['evaluation_set'])
 
-    model = DNN(cc_features.shape[1], None,
+    model = DNN(cc_features.shape[1],
                 args['model_path'],
                 load_model=True,
                 trainable=False)
@@ -71,12 +71,21 @@ if __name__ == '__main__':
     print '\nEvaluation Results'
     print '=================='
     similarities = calculate_similarities(cc_dataset['queries'], cc_embeddings)
-    mAP, pr_curve = evaluate(cc_dataset['ground_truth'], similarities,
+    baseline_similarities = calculate_similarities(cc_dataset['queries'], cc_features)
+    mAP_dml, pr_curve_dml = evaluate(cc_dataset['ground_truth'], similarities,
                              positive_labels=args['positive_labels'], all_videos=False)
-    print 'CC_WEB_VIDEO mAP: ', mAP
-    plot_pr_curve(pr_curve, 'CC_WEB_VIDEO')
+    mAP_base, pr_curve_base = evaluate(cc_dataset['ground_truth'], baseline_similarities,
+                             positive_labels=args['positive_labels'], all_videos=False)
+    print 'CC_WEB_VIDEO'
+    print 'baseline mAP: ', mAP_base
+    print 'DML mAP: ', mAP_dml
+    plot_pr_curve(pr_curve_dml, pr_curve_base, 'CC_WEB_VIDEO')
 
-    mAP, pr_curve = evaluate(cc_dataset['ground_truth'], similarities,
+    mAP_dml, pr_curve_dml = evaluate(cc_dataset['ground_truth'], similarities,
                              positive_labels=args['positive_labels'], all_videos=True)
-    print 'CC_WEB_VIDEO* mAP: ', mAP
-    plot_pr_curve(pr_curve, 'CC_WEB_VIDEO*')
+    mAP_base, pr_curve_base = evaluate(cc_dataset['ground_truth'], baseline_similarities,
+                             positive_labels=args['positive_labels'], all_videos=True)
+    print '\nCC_WEB_VIDEO*'
+    print 'baseline mAP: ', mAP_base
+    print 'DML mAP: ', mAP_dml
+    plot_pr_curve(pr_curve_dml, pr_curve_base, 'CC_WEB_VIDEO*')

@@ -24,8 +24,8 @@ class DNN(object):
 
     def __init__(self,
                  input_dimensions,
-                 hidden_layer_sizes,
                  model_path,
+                 hidden_layer_sizes=None,
                  load_model=False,
                  trainable=True,
                  learning_rate=1e-5,

@@ -118,8 +118,9 @@ if __name__ == '__main__':
         raise Exception('--layers argument is in wrong format. Specify the number '
                         'of neurons in each layer separated by a comma \',\'')
 
-    model = DNN(train_set.shape[1], layers,
+    model = DNN(train_set.shape[1],
                 args['model_path'],
+                hidden_layer_sizes=layers,
                 learning_rate=args['learning_rate'],
                 weight_decay=args['weight_decay'],
                 gamma=args['gamma'])
