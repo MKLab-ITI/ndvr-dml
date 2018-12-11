@@ -137,7 +137,7 @@ def evaluate(ground_truth, similarities, positive_labels='ESLMV', all_videos=Fal
         ps_curve: the values of the PR-curve
     """
     pr, mAP = [], 0.0
-    for query_set, labels in ground_truth.iteritems():
+    for query_set, labels in enumerate(ground_truth):
         i = 0.0
         ri = 0
         s = 0.0

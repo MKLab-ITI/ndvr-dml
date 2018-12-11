@@ -129,7 +129,7 @@ def triplet_generator_cc(dataset, cc_web_features):
     triplets = []
 
     # generate triplets from each query set
-    for i, ground_truth in dataset['ground_truth'].iteritems():
+    for i, ground_truth in enumerate(dataset['ground_truth']):
         pos = [k for k, v in ground_truth.iteritems() if v in ['E', 'L', 'V', 'S', 'M']]
         neg = [k for k, v in ground_truth.iteritems() if v in ['X', '-1']]
         for q in tqdm(xrange(len(pos)), desc='Query {}'.format(i)):
