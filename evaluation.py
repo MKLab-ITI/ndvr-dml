@@ -35,11 +35,11 @@ def calculate_similarities(queries, features):
       Returns:
         similarities: the similarities of each query with the videos in the dataset
     """
-    similarities = dict()
+    similarities = []
     dist = np.nan_to_num(cdist(features[queries], features, metric='euclidean'))
     for i, v in enumerate(queries):
         sim = np.round(1 - dist[i] / dist.max(), decimals=6)
-        similarities[i + 1] = [(s, sim[s]) for s in sim.argsort()[::-1] if not np.isnan(sim[s])]
+        similarities += [[(s, sim[s]) for s in sim.argsort()[::-1] if not np.isnan(sim[s])]]
     return similarities
 
 
