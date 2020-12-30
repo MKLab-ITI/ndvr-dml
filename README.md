@@ -103,7 +103,7 @@ If you use this code for your research, please cite our paper.
 }
 ```
 ## Related Projects
-**[Intermediate-CNN-Features](https://github.com/MKLab-ITI/intermediate-cnn-features)** **[FIVR-200K](https://github.com/MKLab-ITI/FIVR-200K)**
+**[ViSiL](https://github.com/MKLab-ITI/visil)** **[Intermediate-CNN-Features](https://github.com/MKLab-ITI/intermediate-cnn-features)** **[FIVR-200K](https://github.com/MKLab-ITI/FIVR-200K)**
 
 ## License
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details
