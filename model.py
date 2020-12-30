@@ -16,6 +16,8 @@
 Tensorflow implementation of the DNN network used for Deep Metric Learning.
 """
 
+from __future__ import print_function
+
 import os
 import tensorflow as tf
 
@@ -48,6 +50,8 @@ class DNN(object):
         self.path = os.path.join(model_path, 'model')
 
         self.input = tf.placeholder(tf.float32, shape=(None, input_dimensions), name='input')
+        self.embedding_dim = None
+
         self.regularizer = tf.contrib.layers.l2_regularizer(scale=weight_decay) if trainable else None
         if load_model:
             self.output = self.load_model()
@@ -103,6 +107,7 @@ class DNN(object):
         with tf.name_scope('embeddings'):
             net = tf.nn.l2_normalize(net, 1, 1e-15)
             tf.summary.histogram('embeddings', net)
+        self.embedding_dim = M
         return net
 
     def load_model(self):
@@ -164,7 +169,7 @@ class DNN(object):
         """
           Function that saves the DNN model in the provided directory.
         """
-        print 'save model...'
+        print('save model...')
         return self.saver.save(self.sess, self.path)
 
     def train(self, X):

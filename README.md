@@ -11,8 +11,8 @@ and [CC_WEB_VIDEO](http://vireo.cs.cityu.edu.hk/webvideo/).
 <img src="https://raw.githubusercontent.com/MKLab-ITI/ndvr-dml/develop/train_net.png" width="50%">
 
 ## Prerequisites
-* Python 2
-* Tensorflow CPU or GPU version
+* Python
+* Tensorflow 1.xx
 
 ## Getting started
 
@@ -83,7 +83,11 @@ python train_dml.py --evaluation_set output_data/cc_web_video_features.npy --eva
 * Evaluate the performance of the system by providing the trained model path and the global features of the 
 CC_WEB_VIDEO.
 ```bash
-python evaluation.py --evaluation_set output_data/cc_vgg_features.npy --model_path model/
+python evaluation.py --fusion Early --evaluation_set output_data/cc_vgg_features.npy --model_path model/
+````
+OR
+```bash
+python evaluation.py --fusion Late --evaluation_features cc_web_video_feature_files.txt --evaluation_set output_data/cc_vgg_features.npy --model_path model/
 ```
 
 * The *mAP* and *PR-curve* are returned

@@ -3,3 +3,4 @@ tqdm>=4.2
 scikit-learn>=0.19
 scipy>=1.0
 matplotlib>=2.2
+future>=0.16

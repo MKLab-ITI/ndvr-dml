@@ -16,12 +16,16 @@
 Implementation of the triplet generation process.
 """
 
+from __future__ import division
+from __future__ import print_function
+
 import os
 import argparse
 import numpy as np
 
-from tqdm import tqdm, trange
+from tqdm import tqdm
 from multiprocessing import Pool
+from future.utils import viewitems, lrange
 from scipy.spatial.distance import cdist, euclidean
 from utils import load_dataset, load_feature_files, global_vector
 
@@ -41,20 +45,20 @@ def dataset_global_features(dataset, feature_files, cores):
       Returns:
         global_features: global features of the videos in the given dataset
     """
-    print 'Number of videos: ', len(feature_files)
-    print 'CPU cores: ', cores
+    print('Number of videos: ', len(feature_files))
+    print('CPU cores: ', cores)
 
-    print '\nGlobal Vectors Extraction'
-    print '========================='
-    progress_bar = tqdm(xrange(len(dataset['index'])), unit='video')
+    print('\nGlobal Vectors Extraction')
+    print('=========================')
+    progress_bar = tqdm(dataset['index'], unit='videos')
 
     # extract features in parallel
     pool = Pool(cores)
     future = []
     for video_id in dataset['index']:
         future += [pool.apply_async(global_vector,
-                        args=[feature_files.get(video_id)],
-                        callback=(lambda *a: progress_bar.update()))]
+                                    args=[feature_files.get(video_id)],
+                                    callback=(lambda *a: progress_bar.update()))]
     pool.close()
     pool.join()
 
@@ -92,8 +96,8 @@ def triplet_generator_vcdb(dataset, vcdb_features, threshold):
     core_dataset = vcdb_features[:528]
     distractors = vcdb_features[528:]
 
-    print '\nVCDB Triplet Generation'
-    print '======================='
+    print('\nVCDB Triplet Generation')
+    print('=======================')
     triplets = []
     for video_pair in tqdm(dataset['video_pairs']):
         if video_pair['overlap'][0] > threshold and video_pair['overlap'][1] > threshold:
@@ -124,16 +128,16 @@ def triplet_generator_cc(dataset, cc_web_features):
       Returns:
         triplets: the list of triplets with video indexes
     """
-    print '\nCC_WEB_VIDEO Triplet Generation'
-    print '==============================='
+    print('\nCC_WEB_VIDEO Triplet Generation')
+    print('===============================')
     triplets = []
 
     # generate triplets from each query set
     for i, ground_truth in enumerate(dataset['ground_truth']):
-        pos = [k for k, v in ground_truth.iteritems() if v in ['E', 'L', 'V', 'S', 'M']]
-        neg = [k for k, v in ground_truth.iteritems() if v in ['X', '-1']]
-        for q in tqdm(xrange(len(pos)), desc='Query {}'.format(i)):
-            for p in xrange(q + 1, len(pos)):
+        pos = [k for k, v in viewitems(ground_truth) if v in ['E', 'L', 'V', 'S', 'M']]
+        neg = [k for k, v in viewitems(ground_truth) if v in ['X', '-1']]
+        for q in tqdm(lrange(len(pos)), desc='Query {}'.format(i)):
+            for p in lrange(q + 1, len(pos)):
                 video1 = cc_web_features[pos[q]]
                 video2 = cc_web_features[pos[p]]
 
@@ -175,11 +179,10 @@ if __name__ == '__main__':
         raise Exception('--dataset is invalid. Only VCDB and CC_WEB_VIDEO datasets are supported')
     dataset = load_dataset(args['dataset'])
 
-    print 'Processed dataset: ', args['dataset']
-    print 'Storage directory: ', args['output_dir']
+    print('Processed dataset: ', args['dataset'])
+    print('Storage directory: ', args['output_dir'])
     features = dataset_global_features(dataset, load_feature_files(args['feature_files']), args['cores'])
     np.save(os.path.join(args['output_dir'], '{}_features'.format(args['dataset'])), features)
-
     if 'vcdb' in args['dataset'].lower():
         triplets = triplet_generator_vcdb(dataset, features, args['overlap_threshold'])
     elif 'cc_web_video' in args['dataset'].lower():

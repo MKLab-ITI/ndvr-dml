@@ -13,10 +13,14 @@
 # limitations under the License.
 # ==============================================================================
 
+from __future__ import division
+from __future__ import print_function
+
 import numpy as np
 import pickle as pk
 import matplotlib.pylab as plt
 
+from future.utils import lrange
 from sklearn.metrics import precision_recall_curve
 
 
@@ -44,7 +48,9 @@ def load_feature_files(feature_files):
         file is not in the right format
     """
     try:
-        return {l.split('\t')[0]: l.split('\t')[1].strip() for l in open(feature_files, 'rb').readlines()}
+        with open(feature_files, 'r') as f:
+            d = {l.split('\t')[0]: l.split('\t')[1].strip() for l in f.readlines()}
+        return d
     except:
         raise Exception('''--feature_files provided is in wrong format. Each line of the 
         file have to contain the video id (name of the video file) 
@@ -58,17 +64,38 @@ def load_feature_files(feature_files):
                                                       ...''')
 
 
-def normalize(X):
+def load_features(video):
+    """
+      Function that loads the video frame vectors.
+
+      Args:
+        video: path to input video
+      Returns:
+        the video frame vectors
+    """
+    try:
+        return np.load(video)
+    except Exception as e:
+        if video:
+            print('Can\'t load feature file {}\n{}'.format(video, e.message))
+        return np.array([])
+
+
+def normalize(X, zero_mean=True, l2_norm=True):
     """
       Function that apply zero mean and l2-norm to every vector.
 
       Args:
         X: input feature vectors
+        zero_mean: apply zero mean
+        l2_norm: apply l2-norm
       Returns:
         the normalized vectors
     """
-    X -= X.mean(axis=1, keepdims=True)
-    X /= np.linalg.norm(X, axis=1, keepdims=True) + 1e-15
+    if zero_mean:
+        X -= X.mean(axis=1, keepdims=True)
+    if l2_norm:
+        X /= np.linalg.norm(X, axis=1, keepdims=True) + 1e-15
     return X
 
 
@@ -86,14 +113,12 @@ def global_vector(video):
         X: the normalized global feature vector
     """
     try:
-        X = np.load(video)
+        X = load_features(video)
         X = normalize(X)
         X = X.mean(axis=0, keepdims=True)
         X = normalize(X)
         return X
-    except Exception as e:
-        if video:
-            print 'Can\'t load feature file {}\n{}'.format(video, e.message)
+    except:
         return np.array([])
 
 
@@ -156,7 +181,7 @@ def evaluate(ground_truth, similarities, positive_labels='ESLMV', all_videos=Fal
 
         precision, recall, thresholds = precision_recall_curve(y_target, y_score)
         p = []
-        for i in xrange(20, 0, -1):
+        for i in lrange(20, 0, -1):
             idx = np.where((recall >= i*0.05))[0]
             p += [np.max(precision[idx])]
         pr += [p + [1.0]]

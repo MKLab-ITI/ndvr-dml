@@ -16,11 +16,15 @@
 Tensorflow implementation of the Deep Metric Learning training process.
 """
 
+from __future__ import division
+from __future__ import print_function
+
 import tqdm
 import argparse
 import numpy as np
 
 from model import DNN
+from future.utils import lrange
 
 
 def train_dml_network(model, train_set, triplets, epochs, batch_sz):
@@ -35,21 +39,22 @@ def train_dml_network(model, train_set, triplets, epochs, batch_sz):
         batch_sz: the batch size
     """
 
-    print '\nStart of DML Training'
-    print '====================='
-    n_batch = triplets.shape[0] / batch_sz + 1
-    for i in xrange(epochs):
+    print('\nStart of DML Training')
+    print('=====================')
+    n_batch = triplets.shape[0] // batch_sz + 1
+    for i in lrange(epochs):
         np.random.shuffle(triplets)
-        pbar = tqdm.trange(n_batch, desc='epoch {}'.format(i),
-                                mininterval=1.0, unit='batch',
-                                postfix={'loss': '', 'error': ''})
+        pbar = tqdm.trange(n_batch,
+                           desc='epoch {}'.format(i),
+                           mininterval=1.0,
+                           unit='batch')
         for j in pbar:
             triplet_batch = triplets[j * batch_sz: (j + 1) * batch_sz]
             train_batch = train_set[triplet_batch.reshape(-1)]
 
-            _, cost, error = model.train(train_batch)
+            _, loss, error = model.train(train_batch)
 
-            pbar.set_postfix(cost=cost, error='{0:.2f}%'.format(error))
+            pbar.set_postfix(loss=loss, error='{0:.2f}%'.format(error))
 
             if j % int(0.25 * n_batch + 1) == 0 and j > 0:
                 model.save()
@@ -93,19 +98,19 @@ if __name__ == '__main__':
                              'every triplet. Default: 1.0')
     args = vars(parser.parse_args())
 
-    print 'Train set file: ', args['train_set']
-    print 'Train triplet file: ', args['triplets']
+    print('Train set file: ', args['train_set'])
+    print('Train triplet file: ', args['triplets'])
 
-    print 'loading data...'
+    print('loading data...')
     train_set = np.load(args['train_set'])
     triplets = np.load(args['triplets'])
 
     if args.get('evaluation_set'):
         args['injection'] = np.min([args['injection'], 10000])
-        print 'Evaluation set file: ', args['evaluation_set']
-        print 'Evaluation triplet file: ', args['evaluation_triplets']
-        print 'Injected triplet: ', args['injection']
-        print 'loading data...'
+        print('Evaluation set file: ', args['evaluation_set'])
+        print('Evaluation triplet file: ', args['evaluation_triplets'])
+        print('Injected triplet: ', args['injection'])
+        print('loading data...')
         evaluation_set = np.load(args['evaluation_set'])
         eval_triplets = np.load(args['evaluation_triplets']) + len(train_set)
         np.random.shuffle(eval_triplets)
