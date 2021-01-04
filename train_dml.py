@@ -102,8 +102,8 @@ if __name__ == '__main__':
     print('Train triplet file: ', args['triplets'])
 
     print('loading data...')
-    train_set = np.load(args['train_set'])
-    triplets = np.load(args['triplets'])
+    train_set = np.load(args['train_set']).astype(np.float32)
+    triplets = np.load(args['triplets']).astype(np.int)
 
     if args.get('evaluation_set'):
         args['injection'] = np.min([args['injection'], 10000])
@@ -111,8 +111,8 @@ if __name__ == '__main__':
         print('Evaluation triplet file: ', args['evaluation_triplets'])
         print('Injected triplet: ', args['injection'])
         print('loading data...')
-        evaluation_set = np.load(args['evaluation_set'])
-        eval_triplets = np.load(args['evaluation_triplets']) + len(train_set)
+        evaluation_set = np.load(args['evaluation_set']).astype(np.float32)
+        eval_triplets = np.load(args['evaluation_triplets']).astype(np.int) + len(train_set)
         np.random.shuffle(eval_triplets)
         train_set = np.concatenate([train_set, evaluation_set], axis=0)
         triplets = np.concatenate([triplets, eval_triplets[:args['injection']]], axis=0)
