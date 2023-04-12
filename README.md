@@ -8,7 +8,7 @@ For evaluation, *mean Average Precision* (*mAP*) and *Presicion-Recall curve* (*
 Two publicly available dataset are supported, namely [VCDB](http://www.yugangjiang.info/research/VCDB/index.html) 
 and [CC_WEB_VIDEO](http://vireo.cs.cityu.edu.hk/webvideo/).
 
-<img src="https://raw.githubusercontent.com/MKLab-ITI/ndvr-dml/develop/train_net.png" width="50%">
+<img src="https://raw.githubusercontent.com/MKLab-ITI/ndvr-dml/develop/train_net.png" width="70%">
 
 ## Prerequisites
 * Python
@@ -94,7 +94,7 @@ python evaluation.py --fusion Late --evaluation_features cc_web_video_feature_fi
 
 ## Citation
 If you use this code for your research, please cite our paper.
-```
+```bibtex
 @inproceedings{kordopatis2017dml,
   title={Near-Duplicate Video Retrieval with Deep Metric Learning},
   author={Kordopatis-Zilos, Giorgos and Papadopoulos, Symeon and Patras, Ioannis and Kompatsiaris, Yiannis},
@@ -103,7 +103,12 @@ If you use this code for your research, please cite our paper.
 }
 ```
 ## Related Projects
-**[ViSiL](https://github.com/MKLab-ITI/visil)** **[Intermediate-CNN-Features](https://github.com/MKLab-ITI/intermediate-cnn-features)** **[FIVR-200K](https://github.com/MKLab-ITI/FIVR-200K)**
+
+**[Intermediate-CNN-Features](https://github.com/MKLab-ITI/intermediate-cnn-features)** - this repo was used to extract our features
+
+**[ViSiL](https://github.com/MKLab-ITI/visil)** - video similarity learning for fine-grained similarity calculation
+
+**[FIVR-200K](https://github.com/MKLab-ITI/FIVR-200K)** - download our FIVR-200K dataset
 
 ## License
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details
